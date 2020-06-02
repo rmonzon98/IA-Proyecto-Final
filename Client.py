@@ -130,7 +130,7 @@ def NextMove(board, player_turn, move, isMAx):
 		return (board, diferencia * -1)
 			
 #New address
-host_address = '40.88.136.34'
+host_address = 'localhost'
 port_address = '4000'
 address = 'http://' + host_address + ':' + port_address
 
@@ -153,7 +153,7 @@ def on_connect():
 	print('Connecting with server')
 	socket.emit('signin',
 		{
-			'user_name': 'prrros',
+			'user_name': '1 decada de mala suerte al que me gane - Raul Monzon',
         	'tournament_id': tour_id,
         	'user_role': 'player'
 		}
