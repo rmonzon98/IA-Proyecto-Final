@@ -10,10 +10,12 @@ import socketio
 def DetermineMove(board, player_turn_id):
 	free = []
 	free = FreeSpace(board)
+
 	quality = -10000
 	nextMove = []
 	for i in free:
-		score = MiniMax(board,player_turn_id,-100000,+100000,0,0,False,i)
+		#MiniMax
+		score = MiniMax(board,0,False,player_turn_id,-100000,+100000,0,i)
 		#In case a move with better "quality" is found, 
 		#quality takes the value of score and nextMove
 		#save the free space
@@ -21,6 +23,7 @@ def DetermineMove(board, player_turn_id):
 			nextMove.clear()
 			quality = score			
 			nextMove.append(i)
+
 	return [nextMove[0][0],nextMove[0][1]]
 
 #FreeSpace:
@@ -36,16 +39,16 @@ def FreeSpace(board):
 	return free
 
 #MiniMax
-def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMax,move):
-	player = player_turn_id if isMax else (player_turn_id % 2) +1
-	if (isMax):
-		notMax = False
-	else:
-		notMax = True
-	_,validate = NextMove(board,player_turn_id,move,notMax)
+def MiniMax(board, depth, isMax, player_turn_id,alpha, beta,nodeIndex,move):
+#def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMax,move):
+	player = player_turn_id if isMax else (player_turn_id % 2) + 1
+
+	_,validate = NextMove(board, player_turn_id, move, not isMax)
+	
 	#if current board state is a terminal state :
 	if (depth == 0 or validate != 0):
 		return validate
+	
 	free = []
 	free = FreeSpace(board)
 	#if isMaximizingPlayer :
@@ -53,32 +56,41 @@ def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMax,move):
 		quality = -100000
 		for i in free:
 			board = NextMove(board,player,move,isMax)
-			score = MiniMax(board, player, alpha, beta, depth + 1, 0, False, i)
+			#Minimax
+			score = MiniMax(board, depth + 1,False, player, alpha, beta,0, i)
 			quality = max(quality, score)
 			alpha = max(alpha, score)
 			if (beta <= alpha):
 				break
+
 		board[move[0]][move[1]] = 99
 		return quality
+
 	#if isMinimizingPlayer :
 	if (not(isMax)):
 		quality = 100000
 		for j in free:
 			board = NextMove(board,player,move,isMax)
-			score = MiniMax(board, player, alpha, beta, depth + 1, 0, True, j)
+			#Minimax
+			score = MiniMax(board,depth + 1, True,  player,  alpha, beta,0, j)
 			quality = min(quality,score)
 			beta = min(beta, score)
+
 		board[move[0]][move[1]] = 99
 		return quality
+
 	return 0
 
 
 #This code is based on the algorithm shared on the class's forum
 def NextMove(board, player_turn, move, isMAx):
+	
 	N = 6
 	EMPTY = 99
+
 	contadorPuntos = 0
 	contadorPuntos2 = 0
+
 	acumulador = 0
 	contador = 0
 
@@ -106,16 +118,20 @@ def NextMove(board, player_turn, move, isMAx):
 		else: 
 			contador = contador + 1
 			acumulador = 0
-	
+
+	diferencia = contadorPuntos2 - contadorPuntos
 	if (contadorPuntos < contadorPuntos2):
-		diferencia = contadorPuntos - contadorPuntos2
 		if (player_turn == 1):
-			board[move[0]][move[1]] = 2 if diferencia == 2 else 1
-			#board[move[0]][move[1]] = 1 if diferencia == 1
+			if (diferencia == 2):
+				board[move[0]][move[1]] = 2
+			if (diferencia == 1):
+				board[move[0]][move[1]] = 1
 		elif (player_turn == 2):
-			board[move[0]][move[1]] = -2 if diferencia == 2 else -1
-	
-	diferencia = contadorPuntos - contadorPuntos2
+			if (diferencia == 2):
+				board[move[0]][move[1]] = -2
+			if (diferencia == 1):
+				board[move[0]][move[1]] = -1
+
 	if (isMAx):
 		return (board,diferencia)
 	else:
@@ -196,3 +212,4 @@ def finish(data):
         }
     )
 	print('This match has finished, waiting for a new match')
+
