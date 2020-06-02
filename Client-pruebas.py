@@ -1,12 +1,13 @@
 import socketio
-#import random
+
+
 
 #DetermineMove:
 #This process evaluates every free space on the board,
 #every time a new space is tested, a value is given to it
 #depending of the "quality" of the move
 #Recieves: board, player_turn_id
-#Return: the move with the best "quality"
+#Returns: the move with the best "quality"
 def DetermineMove(board, player_turn_id):
 	free = []
 	free = FreeSpace(board)
@@ -15,7 +16,7 @@ def DetermineMove(board, player_turn_id):
 	nextMove = []
 	for i in free:
 		#MiniMax
-		score = MiniMax(board,0,False,player_turn_id,-100000,+100000,0,i)
+		score = MiniMax(board, player_turn_id, -100000, +100000, 0, 0, False, i)
 		#In case a move with better "quality" is found, 
 		#quality takes the value of score and nextMove
 		#save the free space
@@ -29,7 +30,7 @@ def DetermineMove(board, player_turn_id):
 #FreeSpace:
 #This operation verifies which spaces on the board are free
 #Recieves: board
-#Return: a group of available spaces
+#Returns: a group of available spaces
 def FreeSpace(board):
 	free = []
 	for i in range(len(board)):
@@ -39,11 +40,12 @@ def FreeSpace(board):
 	return free
 
 #MiniMax
-def MiniMax(board, depth, isMax, player_turn_id,alpha, beta,nodeIndex,move):
-#def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMax,move):
-	player = player_turn_id if isMax else (player_turn_id % 2) + 1
+#Recieves: board, id of the player, alpha, beta, depth of tree, node index, ¿are we maximizing player?, move to be tested
+#Returns: optimal move depending on their quality
+def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,move):
+	player = player_turn_id if isMaximizingPlayer else (player_turn_id % 2) + 1
 
-	_,validate = NextMove(board, player_turn_id, move, not isMax)
+	_,validate = NextMove(board, player_turn_id, move, not isMaximizingPlayer)
 	
 	#if current board state is a terminal state :
 	if (depth == 0 or validate != 0):
@@ -52,12 +54,12 @@ def MiniMax(board, depth, isMax, player_turn_id,alpha, beta,nodeIndex,move):
 	free = []
 	free = FreeSpace(board)
 	#if isMaximizingPlayer :
-	if (isMax):
+	if (isMaximizingPlayer):
 		quality = -100000
 		for i in free:
-			board = NextMove(board,player,move,isMax)
+			board = NextMove(board,player,move,isMaximizingPlayer)
 			#Minimax
-			score = MiniMax(board, depth + 1,False, player, alpha, beta,0, i)
+			score = MiniMax(board, player, alpha, beta, depth + 1, 0, False, i)
 			quality = max(quality, score)
 			alpha = max(alpha, score)
 			if (beta <= alpha):
@@ -67,12 +69,12 @@ def MiniMax(board, depth, isMax, player_turn_id,alpha, beta,nodeIndex,move):
 		return quality
 
 	#if isMinimizingPlayer :
-	if (not(isMax)):
+	if (not(isMaximizingPlayer)):
 		quality = 100000
 		for j in free:
-			board = NextMove(board,player,move,isMax)
+			board = NextMove(board,player,move,isMaximizingPlayer)
 			#Minimax
-			score = MiniMax(board,depth + 1, True,  player,  alpha, beta,0, j)
+			score = MiniMax(board, player, alpha, beta, depth + 1, 0, True, j)
 			quality = min(quality,score)
 			beta = min(beta, score)
 
@@ -81,56 +83,39 @@ def MiniMax(board, depth, isMax, player_turn_id,alpha, beta,nodeIndex,move):
 
 	return 0
 
-
-#This code is based on the algorithm shared on the class's forum
-def NextMove(board, player_turn, move, isMAx):
-	
+#This code was taken from the class's forum
+def ContarPuntos(board):
+	acumuladorPuntos= 0
 	N = 6
 	EMPTY = 99
-
-	contadorPuntos = 0
-	contadorPuntos2 = 0
-
 	acumulador = 0
 	contador = 0
-
-	board = list(map(list,board))
 	for i in range(len(board[0])):
 		if ((i +1) % 6) != 0:
 			if board[0][i] != EMPTY and board[0][i + 1] != EMPTY and board[1][contador + acumulador] != EMPTY and board[1][contador + acumulador + 1] != EMPTY:
-				contadorPuntos = contadorPuntos + 1
+				acumuladorPuntos = acumuladorPuntos + 1
 			acumulador = acumulador + N
 		else: 
 			contador = contador + 1
 			acumulador = 0
-	
-	acumulador = 0
-	contador = 0	
-	
+	return acumuladorPuntos
+
+#NextMove
+def NextMove(board, player_turn, move, isMAx):
+
+	board = list(map(list,board))
+	acumuladorPuntos = ContarPuntos(board)
+
 	board[move[0]][move[1]] = 0
-
 	board = list(map(list,board))
-	for i in range(len(board[0])):
-		if ((i +1) % 6) != 0:
-			if board[0][i] != EMPTY and board[0][i + 1] != EMPTY and board[1][contador + acumulador] != EMPTY and board[1][contador + acumulador + 1] != EMPTY:
-				contadorPuntos2 = contadorPuntos2 + 1
-			acumulador = acumulador + N
-		else: 
-			contador = contador + 1
-			acumulador = 0
+	acumuladorPuntos2 = ContarPuntos
 
-	diferencia = contadorPuntos2 - contadorPuntos
-	if (contadorPuntos < contadorPuntos2):
+	diferencia = acumuladorPuntos2 - acumuladorPuntos
+	if (acumuladorPuntos < acumuladorPuntos2):
 		if (player_turn == 1):
-			if (diferencia == 2):
-				board[move[0]][move[1]] = 2
-			if (diferencia == 1):
-				board[move[0]][move[1]] = 1
+			board[move[0]][move[1]] = 2 if diferencia == 2 else 1
 		elif (player_turn == 2):
-			if (diferencia == 2):
-				board[move[0]][move[1]] = -2
-			if (diferencia == 1):
-				board[move[0]][move[1]] = -1
+			board[move[0]][move[1]] = -2 if diferencia == 2 else -1
 
 	if (isMAx):
 		return (board,diferencia)
