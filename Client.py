@@ -23,7 +23,6 @@ def FreeSpace(board):
 #Returns: optimal move depending on their quality
 def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,move):
 	player = player_turn_id if isMaximizingPlayer else (player_turn_id % 2) + 1
-
 	_,validate = NextMove(board, player_turn_id, move, not isMaximizingPlayer)
 	
 	#if current board state is a terminal state :
@@ -63,9 +62,8 @@ def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,m
 	return 0
 
 #DetermineMove:
-#This process evaluates every free space on the board,
-#every time a new space is tested, a value is given to it
-#depending of the "quality" of the move
+#This function evaluates all the available moves using minimax() and 
+#then returns the best move the maximizer can make.
 #Recieves: board, player_turn_id
 #Returns: the move with the best "quality"
 def DetermineMove(board, player_turn_id):
@@ -77,9 +75,6 @@ def DetermineMove(board, player_turn_id):
 	for i in free:
 		#MiniMax
 		score = MiniMax(board, player_turn_id, -100000, +100000, 0, 0, False, i)
-		#In case a move with better "quality" is found, 
-		#quality takes the value of score and nextMove
-		#save the free space
 		if (score > quality):
 			nextMove.clear()
 			quality = score			
@@ -190,10 +185,9 @@ def finish(data):
 	games_counter=lost_games_counter + won_games_counter
 	print('Game number', games_counter, 'has finished')
 	print('----------------------------------------------')
-	print('Your scores are:')
+	print('Your statistics are:')
 	print('Won games: ', won_games_counter)
 	print('Lost games: ', lost_games_counter)
-
 	socket.emit('player_ready', 
 		{
         	"tournament_id":tour_id,
@@ -202,4 +196,18 @@ def finish(data):
         }
     )
 	print('This match has finished, waiting for a new match')
+	print('----------------------------------------------')
+	if (won_games_counter == 50):
+		print('You are doing great')
+	elif (won_games_counter == 100):
+		print('You are killin it')
+	elif (won_games_counter == 200):
+		print ('You already passed the class')
+	if (lost_games_counter == 50):
+		print('You are being destroyed')
+	elif (lost_games_counter == 100):
+		print('Quit the tournament, at least you have honor')
+	elif (lost_games_counter == 200):
+		print ('You should have left the tournament')
+	print(' ')
 
