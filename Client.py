@@ -82,7 +82,7 @@ def DetermineMove(board, player_turn_id):
 
 	return [nextMove[0][0],nextMove[0][1]]
 
-#This code was taken from the class's forum
+#This code was upload to class's forum
 def ContarPuntos(board):
 	acumuladorPuntos= 0
 	N = 6
@@ -98,6 +98,44 @@ def ContarPuntos(board):
 			contador = contador + 1
 			acumulador = 0
 	return acumuladorPuntos
+
+#This code was upload to class's forum
+def humanBoard(board):
+    resultado = ''
+    acumulador = 0
+
+    for i in range(int(len(board[0])/5)):
+        if board[0][i] == 99:
+            resultado = resultado + '*   '
+        else:
+            resultado = resultado + '* - '
+        if board[0][i+6] == 99:
+            resultado = resultado + '*   '
+        else:
+            resultado = resultado + '* - '
+        if board[0][i+12] == 99:
+            resultado = resultado + '*   '
+        else:
+            resultado = resultado + '* - '
+        if board[0][i+18] == 99:
+            resultado = resultado + '*   '
+        else:
+            resultado = resultado + '* - '
+        if board[0][i+24] == 99:
+            resultado = resultado + '*   *\n'
+        else:
+            resultado = resultado + '* - *\n'
+
+        if i != 5:
+            for j in range(int(len(board[1])/5)):
+                if board[1][j + acumulador] == 99:
+                    resultado = resultado + '    '
+                else:
+                    resultado = resultado + '|   '
+            acumulador = acumulador + 6
+            resultado = resultado + '\n'
+
+    return resultado
 
 #NextMove
 #We compare the actual state of the board with the state of the board after the move
@@ -123,9 +161,15 @@ def NextMove(board, player_turn, move, isMAx):
 		return (board,diferencia)
 	else:
 		return (board, diferencia * -1)
+
+"""
+-------------------------------------------------------------------------------
+							BEGIN OF PROGRAM	
+-------------------------------------------------------------------------------
+"""
 			
 #New address
-host_address = 'localhost'
+host_address = '20.185.17.140'
 port_address = '4000'
 address = 'http://' + host_address + ':' + port_address
 
@@ -159,6 +203,9 @@ def on_connect():
 #Beginning of the game
 @socket.on('ready')
 def on_ready(data):
+
+	visualizeBoard = humanBoard (data['board'])
+	print(visualizeBoard)
 
 	movement = DetermineMove(data["board"],data["player_turn_id"])
 	socket.emit('play', 
