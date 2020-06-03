@@ -23,7 +23,7 @@ def FreeSpace(board):
 #Returns: optimal move depending on their quality
 def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,move):
 	player = player_turn_id if isMaximizingPlayer else (player_turn_id % 2) + 1
-	_,validate = NextMove(board, player_turn_id, move, not isMaximizingPlayer)
+	_,validate = LookAhead(board, player_turn_id, move, not isMaximizingPlayer)
 	
 	#if current board state is a terminal state :
 	if (depth == 0 or validate != 0):
@@ -35,7 +35,7 @@ def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,m
 	if (isMaximizingPlayer):
 		quality = -100000
 		for i in free:
-			board = NextMove(board,player,move,isMaximizingPlayer)
+			board = LookAhead(board,player,move,isMaximizingPlayer)
 			#Minimax
 			score = MiniMax(board, player, alpha, beta, depth + 1, 0, False, i)
 			quality = max(quality, score)
@@ -50,7 +50,7 @@ def MiniMax(board,player_turn_id,alpha,beta,depth,nodeIndex,isMaximizingPlayer,m
 	if (not(isMaximizingPlayer)):
 		quality = 100000
 		for j in free:
-			board = NextMove(board,player,move,isMaximizingPlayer)
+			board = LookAhead(board,player,move,isMaximizingPlayer)
 			#Minimax
 			score = MiniMax(board, player, alpha, beta, depth + 1, 0, True, j)
 			quality = min(quality,score)
@@ -137,11 +137,11 @@ def humanBoard(board):
 
     return resultado
 
-#NextMove
+#LookAhead
 #We compare the actual state of the board with the state of the board after the move
 #Receives: board, player_turn, move, isMax
 #Returns: state of the board and the diferrence in the score
-def NextMove(board, player_turn, move, isMAx):
+def LookAhead(board, player_turn, move, isMAx):
 
 	board = list(map(list,board))
 	acumuladorPuntos = ContarPuntos(board)
@@ -169,7 +169,7 @@ def NextMove(board, player_turn, move, isMAx):
 """
 			
 #New address
-host_address = '20.185.17.140'
+host_address = '198.154.2 2'
 port_address = '4000'
 address = 'http://' + host_address + ':' + port_address
 
@@ -192,7 +192,7 @@ def on_connect():
 	print('Connecting with server')
 	socket.emit('signin',
 		{
-			'user_name': '1 decada de mala suerte al que me gane - Raul Monzon',
+			'user_name': 'Raul Monzon (Pantera negra)',
         	'tournament_id': tour_id,
         	'user_role': 'player'
 		}
